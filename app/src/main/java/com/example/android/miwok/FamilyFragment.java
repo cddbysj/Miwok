@@ -1,11 +1,14 @@
 package com.example.android.miwok;
 
+
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.support.v4.app.Fragment;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
@@ -16,7 +19,10 @@ import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
-public class FamilyActivity extends AppCompatActivity {
+/**
+ * A simple {@link Fragment} subclass.
+ */
+public class FamilyFragment extends Fragment {
     private MediaPlayer mediaPlayer;
 
     /**
@@ -61,6 +67,10 @@ public class FamilyActivity extends AppCompatActivity {
         }
     };
 
+    public FamilyFragment() {
+        // Required empty public constructor
+    }
+
     private static ArrayList<Word> getList() {
         ArrayList<Word> words = new ArrayList<>();
         words.add(new Word("father", "әpә", R.drawable.family_father, R.raw.family_father));
@@ -77,15 +87,15 @@ public class FamilyActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.word_list);
-        setVolumeControlStream(AudioManager.STREAM_MUSIC);
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        View rootView = inflater.inflate(R.layout.word_list, container, false);
+        getActivity().setVolumeControlStream(AudioManager.STREAM_MUSIC);
 
-        am = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
+        am = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
         final ArrayList<Word> words = getList();
-        WordAdapter adapter = new WordAdapter(this, words, R.color.category_family);
-        ListView listView = (ListView) findViewById(R.id.list);
+        WordAdapter adapter = new WordAdapter(getActivity(), words, R.color.category_family);
+        ListView listView = (ListView) rootView.findViewById(R.id.list);
         listView.setAdapter(adapter);
 
         //Set a click listener to play the audio when the list item is clicked on
@@ -98,7 +108,7 @@ public class FamilyActivity extends AppCompatActivity {
                 Word word = words.get(position);
                 int result = am.requestAudioFocus(afChangeListener, AudioManager.STREAM_MUSIC, AUDIOFOCUS_GAIN_TRANSIENT);
                 if (result == AUDIOFOCUS_REQUEST_GRANTED) {
-                    mediaPlayer = MediaPlayer.create(getBaseContext(), word.getmAudioResourceId());
+                    mediaPlayer = MediaPlayer.create(getActivity(), word.getmAudioResourceId());
                     mediaPlayer.start();
                 }
 
@@ -107,10 +117,11 @@ public class FamilyActivity extends AppCompatActivity {
                 mediaPlayer.setOnCompletionListener(mCompletionListener);
             }
         });
+        return rootView;
     }
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
         releaseMediaPlayer();
     }
@@ -132,5 +143,5 @@ public class FamilyActivity extends AppCompatActivity {
         }
 
     }
-}
 
+}
